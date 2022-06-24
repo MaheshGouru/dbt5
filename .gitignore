@@ -24,3 +24,10 @@ egen/*.log
 egen/bin/
 egen/lib/
 egen/obj/
+
+# IntelliJ
+.idea
+
+# MacOS generated files
+.DS_Store
+.DS_Store?
