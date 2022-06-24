@@ -4,13 +4,35 @@
  *
  * Copyright (C) 2006 Rilson Nascimento
  *
- * Trade Order transaction
- * ------------------------
- * The Trade Order transaction is designed to emulate the process of ordering
- * the trade, buy or sell, of a security by a Customer, Broker, or authorized
- * third-party.
+ * @TODO Draft of Modified Comments
+ * Copyright (C) 2022 Mahesh Varun Gouru
  *
- * Based on TPC-E Standard Specification Draft Revision 0.32.2e Clause 3.3.1.
+ * 3.3.7 The Trade-Order transaction [Page 122 of 287]
+ * ------------------------
+ * The Trade Order Transaction is designed to emulate the process of buying or selling a security by a Customer, Broker,
+ * or authorized third-party. If the person executing the trade order is not the account owner, the Transaction will
+ * verify that the person has the appropriate authorization to perform the trade order. The Transaction allows the
+ * person trading to execute buys at the current market price, sells at the current market price, or limit buys and
+ * sells at a requested price. The Transaction also provides an estimate of the financial impact of the proposed trade
+ * by providing profit/loss data, tax implications, and anticipated commission fees. This allows the trader to evaluate
+ * the desirability of the proposed security trade before either submitting or canceling the trade.
+ *
+ * Based on TPC-E Standard Specification Draft Revision 1.14.0 Clause 3.3.7
+ * The Trade-Order Transaction is invoked by EGenDriverCE. It consists of six Frames.
+ * The Transaction starts by using the account ID passed into the Transaction to obtain
+ * information on the customer, the customer’s account, and the broker for the account.
+ *
+ * @TODO Transforming Function to Stored Procedure
+ * Next, the Transaction conditionally validates that the person executing the trade is
+ * authorized to perform such actions on the specified account. If the executor is not authorized,
+ * then the Transaction rolls back. However, during the benchmark execution,
+ * the CE will always generate authorized executors.
+ * ...
+ * After all the above processing has completed, a small percentage of the Trade-Order Transactions are selected to
+ * emulate either the canceling the order or an error condition by rolling back all modifications.
+ * All other Trade-Order Transactions are Committed. After a successfully Committed market order,
+ * the EGenTxnHarness sends the order for the trade to the appropriate MEE.
+ *
  */
 
 /*
