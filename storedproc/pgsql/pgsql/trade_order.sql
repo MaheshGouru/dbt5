@@ -119,9 +119,24 @@ ROLLBACK;
 END $$;
 
 /*
- * Frame 2
- * Responsible for validating the executor's permission to order trades for the
- * specified customer account
+ * 3.3.7.4 Trade-Order Transaction Frame 2 of 6 [Page 126 of 287]
+ * The second Frame is conditionally executed when the Transaction executo􏰋􏰓􏰐r's first name, last name, and tax id do not􏰗􏰚􏰋􏰐􏰑
+ * match the customer first name, customer last name, and customer tax id returned in Frame 1.
+ * Frame 2 is responsible for validating the executor's permissions to order trades for the 􏰑􏰋􏰊specified customer account.
+ *
+ * The database access methods used in Frame 2 are all References.
+ *
+ * +--------------------+------------+-------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
+ * | Parameter          |  Direction |  Description                                                                                                            |                                                                                                              |
+ * +--------------------+------------+-------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
+ * | @param acct_id     |  IN        |  Identifier of the customer account involved in the transaction.                                                        |                                                                                                              |
+ * | @param exec_f_name |  IN        |  First name of the person executing the trade.                                                                          |                                                                                                              |
+ * | @param exec_l_name |  IN        |  Last name of the person executing the trade.                                                                           |                                                                                                              |
+ * | @param exec_tax_id |  IN        |  Tax identifier for the person executing the trade.                                                                     |                                                                                                              |
+ * | @param ap_acl      |  OUT       |  Account permission access control list string for this executor on this customer account. If a NULL string is returned |  then the executor of this transaction does not have permission to execute trades for the specified account. |
+ * +--------------------+------------+-------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------+
+ *
+ * TRADE_ORDER_FRAME_2
  */
 
 CREATE OR REPLACE FUNCTION TradeOrderFrame2(
