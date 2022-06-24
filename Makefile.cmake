@@ -10,7 +10,7 @@ debug:
 	cmake -H. -Bbuilds/debug -DCMAKE_BUILD_TYPE=Debug
 	cd builds/debug && make
 
-package:
+package:docker
 	git checkout-index --prefix=builds/source/ -a
 	cmake -Hbuilds/source -Bbuilds/source
 	cd builds/source && make package_source

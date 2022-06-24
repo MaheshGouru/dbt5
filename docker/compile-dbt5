@@ -14,8 +14,8 @@ DOCKER_DIR=`dirname $0`
 DOCKER_DIR=`readlink -f $DOCKER_DIR`
 
 DOCKER_TAG="dbt5-driver"
-UID=`id -u`
-GID=`id -g`
+myUID=`id -u`
+myGID=`id -g`
 
 DBT5_PATH="/usr/local/src/dbt5"
 
@@ -36,6 +36,6 @@ fi
 
 docker run --rm -v ${DOCKER_DIR}/..:${DBT5_PATH}:rw -w $DBT5_PATH \
 		-e PKG_CONFIG_PATH="/usr/lib/pkgconfig" $VERBOSE_FLAG \
-		-u ${UID}:${GID} $DOCKER_TAG \
+		-u ${myUID}:${myGID} $DOCKER_TAG \
 		bash -c 'make -f Makefile.cmake clean; make -f Makefile.cmake debug' \
 		|| exit 1
