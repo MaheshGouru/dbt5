@@ -36,9 +36,27 @@
  */
 
 /*
- * Frame 1
- * Responsible for retrieving information about the customer, customer account,
- * and its broker
+ * 3.3.7.3 Trade-Order Transaction Frame 1 of 6 [Page 125 of 287]
+ * The first Frame is responsible for retrieving information about the customer, customer account, and its broker.
+ *
+ * Trade-Order Frame 1 of 6 Parameters [Page 125 of 287]
+ * +--------------------+------------+----------------------------------------------------------------------------------------------------------------------------+
+ * | Parameter          |  Direction |  Description                                                                                                               |
+ * +--------------------+------------+----------------------------------------------------------------------------------------------------------------------------+
+ * | @param acct_id     |  IN        |  Identifier of the customer account involved in the transaction.                                                           |
+ * | @param acct_name   |  OUT       |  Name of the account specified by acct_id.                                                                                 |
+ * | @param broker_id   |  OUT       |  Identifier of the broker associated with the specified acct_id.                                                           |
+ * | @param broker_name |  OUT       |  Name of the broker associated with the specified acct_id.                                                                 |
+ * | @param cust_f_name |  OUT       |  First name of the customer who owns the specified account. This output string must not contain trailing white space.      |
+ * | @param cust_id     |  OUT       |  Unique identifier of the customer who owns the specified account.                                                         |
+ * | @param cust_l_name |  OUT       |  Last name of the customer who owns the specified account. This output string must not contain trailing white space.       |
+ * | @param cust_tier   |  OUT       |  The brokerage house service level tier this customer belongs to.                                                          |
+ * | @param num_found   |  OUT       |  Number of CUSTOMER_ACCOUNT rows found.                                                                                    |
+ * | @param tax_id      |  OUT       |  Tax identifier for the customer who owns the specified account. This output string must not contain trailing white space. |
+ * | @param tax_status  |  OUT       |  Tax status of the customer who owns the specified account.                                                                |
+ * +--------------------+------------+----------------------------------------------------------------------------------------------------------------------------+
+ *
+ * TRADE_ORDER_FRAME_1
  */
 
 CREATE OR REPLACE FUNCTION TradeOrderFrame1 (IN acct_id IDENT_T)
