@@ -59,7 +59,7 @@
  * TRADE_ORDER_FRAME_1
  */
 
-CREATE OR REPLACE PROCEDURE TradeOrderProcFrame1 (IN acct_id IDENT_T)
+CREATE OR REPLACE PROCEDURE TradeOrderFrame1 (IN acct_id IDENT_T)
     LANGUAGE plpgsql
 AS $$
 DECLARE
