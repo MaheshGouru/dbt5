@@ -59,11 +59,12 @@
  * TRADE_ORDER_FRAME_1
  */
 
-CREATE OR REPLACE FUNCTION TradeOrderFrame1 (IN acct_id IDENT_T)
-		RETURNS record AS $$
+CREATE OR REPLACE PROCEDURE TradeOrderProcFrame1 (IN acct_id IDENT_T)
+    LANGUAGE plpgsql
+AS $$
 DECLARE
 	-- output parameters
-	acct_name	varchar;
+acct_name	varchar;
 	broker_name	varchar;
 	cust_f_name	varchar;
 	cust_id		IDENT_T;
@@ -77,47 +78,45 @@ DECLARE
 	rs 		RECORD;
 BEGIN
 	-- Get account, customer, and broker information
-	SELECT	CA_NAME,
-		CA_B_ID,
-		CA_C_ID,
-		CA_TAX_ST
-	INTO	acct_name,
-		broker_id,
-		cust_id,
-		tax_status
-	FROM	CUSTOMER_ACCOUNT
-	WHERE	CA_ID = acct_id;
+SELECT	CA_NAME,
+          CA_B_ID,
+          CA_C_ID,
+          CA_TAX_ST
+INTO	acct_name,
+    broker_id,
+    cust_id,
+    tax_status
+FROM	CUSTOMER_ACCOUNT
+WHERE	CA_ID = acct_id;
 
-	SELECT	C_F_NAME,
-		C_L_NAME,
-		C_TIER,
-		C_TAX_ID
-	INTO	cust_f_name,
-		cust_l_name,
-		cust_tier,
-		tax_id
-	FROM	CUSTOMER
-	WHERE	C_ID = cust_id;
+SELECT	C_F_NAME,
+          C_L_NAME,
+          C_TIER,
+          C_TAX_ID
+INTO	cust_f_name,
+    cust_l_name,
+    cust_tier,
+    tax_id
+FROM	CUSTOMER
+WHERE	C_ID = cust_id;
 
-	SELECT	B_NAME
-	INTO	broker_name
-	FROM	BROKER
-	WHERE	B_ID=broker_id;
+SELECT	B_NAME
+INTO	broker_name
+FROM	BROKER
+WHERE	B_ID=broker_id;
 
-	SELECT	acct_name,
-		broker_name,
-		cust_f_name,
-		cust_id,
-		cust_l_name,
-		cust_tier,
-		tax_id,
-		tax_status
-	INTO	rs;
+SELECT	acct_name,
+          broker_name,
+          cust_f_name,
+          cust_id,
+          cust_l_name,
+          cust_tier,
+          tax_id,
+          tax_status
+INTO	rs;
 
-	RETURN rs;
-END;
-$$ LANGUAGE 'plpgsql';
-
+ROLLBACK;
+END $$;
 
 /*
  * Frame 2
