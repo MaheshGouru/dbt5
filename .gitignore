@@ -16,6 +16,7 @@ bin/
 cmake_install.cmake
 CMakeFiles/
 builds/
+cmake-build-debug/
 
 # PostgreSQL
 storedproc/pgsql/c/*.sql
