@@ -19,15 +19,16 @@
  * volume, and to modify the last trade date
  */
 
-CREATE OR REPLACE FUNCTION MarketFeedFrame1 (
-						IN MaxSize		smallint,
-						IN price_quote		numeric(8,2)[],
-						IN status_submitted	char(4),
-						IN symbol		char(15)[],
-						IN trade_qty		integer[],
-						IN type_limit_buy	char(3),
-						IN type_limit_sell	char(3),
-						IN type_stop_loss	char(3)) RETURNS SETOF record AS $$
+CREATE OR REPLACE PROCEDURE MarketFeedFrame1 (
+						@MaxSize    smallint,
+						@price_quote    numeric(8,2)[],
+						@status_submitted   char(4),
+						@symbol char(15)[],
+						@trade_qty  integer[],
+						@type_limit_buy	char(3),
+						@type_limit_sell    char(3),
+						@type_stop_loss char(3))
+LANGUAGE plpgsql
 DECLARE
 	-- output parameters
 	TradeRequestBuffer	record;
@@ -40,7 +41,8 @@ DECLARE
 	price			numeric(8,2);
 	trade_type		char(3);
 	trade_quant		integer;
-BEGIN
+
+BEGIN ATOMIC
 	now_dts = now();
 
 	FOR i IN 1..MaxSize LOOP
@@ -50,6 +52,7 @@ BEGIN
 			LT_VOL = LT_VOL + trade_qty[i],
 			LT_DTS = now_dts
 		WHERE	LT_S_SYMB = symbol[i];
+        COMMIT;
 
 		OPEN request_list FOR
 		SELECT	TR_T_ID,
@@ -61,24 +64,30 @@ BEGIN
 			((TR_TT_ID = type_stop_loss and TR_BID_PRICE >= price_quote[i]) or
 			(TR_TT_ID = type_limit_sell and	TR_BID_PRICE <= price_quote[i]) or
 			(TR_TT_ID = type_limit_buy and TR_BID_PRICE >= price_quote[i]));
+        -- Whether to place the COMMIT
+        ROLLBACK;
 
 		FETCH	request_list
 		INTO	trade_id,
 			price,
 			trade_type,
 			trade_quant;
+        ROLLBACK;
 
 		WHILE FOUND LOOP
 			UPDATE	TRADE
 			SET	T_DTS = now_dts,
 				T_ST_ID = status_submitted
 			WHERE	T_ID = trade_id;
+            COMMIT;
 		
 			DELETE	FROM TRADE_REQUEST
 			WHERE	TR_T_ID = trade_id;
+            ROLLBACK;
 
 			INSERT INTO TRADE_HISTORY
 			VALUES (trade_id, now_dts, status_submitted);
+            COMMIT;
 
 			FOR TradeRequestBuffer IN
 				SELECT	symbol[i],
@@ -87,7 +96,10 @@ BEGIN
 					trade_quant,
 					trade_type
 			LOOP
-				RETURN NEXT TradeRequestBuffer;
+			    EXIT;
+                ROLLBACK;
+				-- Former return function
+			    -- RETURN NEXT TradeRequestBuffer;
 			END LOOP;
 		
 			FETCH	request_list
@@ -95,10 +107,13 @@ BEGIN
 				price,
 				trade_type,
 				trade_quant;
+            COMMIT;
 		END LOOP;
-	
+
 		CLOSE request_list;
 		-- commit transaction
+		COMMIT;
 	END LOOP;
+    ROLLBACK;
 END;
-$$ LANGUAGE 'plpgsql';
+$$;
