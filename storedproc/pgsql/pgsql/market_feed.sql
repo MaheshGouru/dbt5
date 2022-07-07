@@ -19,28 +19,30 @@
  * volume, and to modify the last trade date
  */
 
-CREATE OR REPLACE FUNCTION MarketFeedFrame1 (
-						IN MaxSize		smallint,
-						IN price_quote		numeric(8,2)[],
-						IN status_submitted	char(4),
-						IN symbol		char(15)[],
-						IN trade_qty		integer[],
-						IN type_limit_buy	char(3),
-						IN type_limit_sell	char(3),
-						IN type_stop_loss	char(3)) RETURNS SETOF record AS $$
+CREATE OR REPLACE PROCEDURE MarketFeedFrame1 (
+						@MaxSize		smallint,
+						@price_quote		numeric(8,2)[],
+						@status_submitted	char(4),
+						@symbol		char(15)[],
+						@trade_qty		integer[],
+						@type_limit_buy	char(3),
+						@type_limit_sell	char(3),
+						@type_stop_loss	char(3))
+LANGUAGE plpgsql
 DECLARE
 	-- output parameters
-	TradeRequestBuffer	record;
+	TradeRequestBuffer  record;
 
 	-- variables
-	i			integer;
-	now_dts			timestamp;
-	request_list		refcursor;
+	i			    integer;
+	now_dts		    timestamp;
+	request_list	refcursor;
 	trade_id		TRADE_T;
 	price			numeric(8,2);
 	trade_type		char(3);
 	trade_quant		integer;
-BEGIN
+
+BEGIN ATOMIC
 	now_dts = now();
 
 	FOR i IN 1..MaxSize LOOP
@@ -87,6 +89,7 @@ BEGIN
 					trade_quant,
 					trade_type
 			LOOP
+			-- Whether to eliminate this line of RETURN NEXT
 				RETURN NEXT TradeRequestBuffer;
 			END LOOP;
 		
@@ -99,6 +102,7 @@ BEGIN
 	
 		CLOSE request_list;
 		-- commit transaction
+		COMMIT;
 	END LOOP;
 END;
-$$ LANGUAGE 'plpgsql';
+$$;
